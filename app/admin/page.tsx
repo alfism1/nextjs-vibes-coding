@@ -2,6 +2,8 @@
 
 import { useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/lib/supabase';
+import { useRouter } from 'next/navigation';
 import FlightForm from '@/components/FlightForm';
 import FlightTable from '@/components/admin/FlightTable';
 import Pagination from '@/components/admin/Pagination';
@@ -16,6 +18,12 @@ export default function AdminPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [searchQuery, setSearchQuery] = useState('');
     const [activeSearch, setActiveSearch] = useState('');
+    const router = useRouter();
+
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
+        router.push('/login');
+    };
 
     const queryClient = useQueryClient();
     const { flights, isLoading, totalPages } = useFlights(currentPage, activeSearch);
@@ -49,20 +57,29 @@ export default function AdminPage() {
         }
     };
 
+
     return (
         <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-8 transition-colors duration-300">
             <div className="max-w-4xl mx-auto space-y-8">
                 <div className="flex justify-between items-center">
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-white">Flight Management</h1>
-                    <button
-                        onClick={() => {
-                            setCurrentFlight(null);
-                            setIsEditing(!isEditing);
-                        }}
-                        className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
-                    >
-                        {isEditing ? 'Cancel' : 'Add Flight'}
-                    </button>
+                    <div>
+                        <button
+                            onClick={() => {
+                                setCurrentFlight(null);
+                                setIsEditing(!isEditing);
+                            }}
+                            className="px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 transition-colors"
+                        >
+                            {isEditing ? 'Cancel' : 'Add Flight'}
+                        </button>
+                        <button
+                            onClick={handleLogout}
+                            className="ml-4 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors"
+                        >
+                            Logout
+                        </button>
+                    </div>
                 </div>
 
                 <FlightSearch
